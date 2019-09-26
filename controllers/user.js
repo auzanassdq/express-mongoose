@@ -1,5 +1,7 @@
-const User = require("../models/user");
 const objectId = require("mongodb").ObjectID;
+
+const User = require("../models/user"); 
+const UserImage = require("../models/userImage")
 
 module.exports = {
   getAllUser: (req, res) => {
@@ -8,16 +10,33 @@ module.exports = {
     });
   },
 
-  addUser: (req, res) => {
-    const newUser = new User(req.body);
-    newUser.save((err, result) => {
-      try {
-        res.status(200).send(result)
-      } catch (error) {
-        res.status(400).send(user)
-        console.log(err)
-      }
-    });
+  addUser: async (req, res) => {
+    try {
+      const user = await User.create(req.body);
+
+      const userAvatar = await UserImage.create({
+        filename: req.files[0].filename,
+        path: req.files[0].path
+      })
+
+      await User.findByIdAndUpdate(
+        { _id: user._id },
+        { $push: { avatar: userAvatar._id} },
+        { new: true}
+      )
+
+      res.status(200).send({
+        message: "user created",
+        user,
+        userAvatar
+      })
+
+    } catch (error) {
+      res.status(400).send({
+        message: "user failed to create",
+        error: error.message
+      })
+    }
   },
 
   deleteUser: (req, res) => {
@@ -48,6 +67,15 @@ module.exports = {
         console.log(err);
       }
     })
+    },
+
+    uploadImage:  (req, res) => {
+      UserImage.create({
+        filename: req.files[0].filename,
+        path: req.files[0].path
+      })
+      .then(result => res.send(result))
+      .catch(error => res.send(error))
     }
 
 };

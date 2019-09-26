@@ -12,6 +12,12 @@ var userSchema = new Schema(
         type: Schema.Types.ObjectId,
         ref: "Address"
       }
+    ],
+    avatar: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "userImage"
+      }
     ]
   },
   { timestamps: true }

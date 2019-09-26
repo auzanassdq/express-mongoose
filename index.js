@@ -14,6 +14,7 @@ const port = PORT || 3000
 app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
+app.use(express.static("assets/images/"))
 
 db.then(() => {
   console.log(`connected to database`);
